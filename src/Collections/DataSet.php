@@ -4,7 +4,7 @@ namespace Awadac\DataBundle\Object\Collection;
 use Ulysse\Base\Collections\DataPathed;
 
 /**
- * Ensemble de données accessibles par chemin avec délimiteur '.'
+ * Ensemble de données accessibles par chemin avec délimiteur '.'.
  *
  * @author orodriguez
  *
@@ -13,7 +13,7 @@ class DataSet extends DataPathed
 {
 
 	/**
-	 * Le délimiteur des chemins ($path)
+	 * Le délimiteur de chemins.
 	 *
 	 * @var string
 	 */

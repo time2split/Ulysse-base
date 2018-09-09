@@ -6,6 +6,21 @@
  */
 namespace Ulysse\Base\Collections;
 
+/**
+ * Représentation d'un chemin.
+ *
+ * Un chemin est une suite d'identifiants représentant chacun un noeud de données.
+ * Ces identifiants sont séparés textuellement par des délimiteurs.
+ *
+ * Il existe deux types d'identifiant spéciaux : 'current' et 'previous'.
+ * 'current' représente le noeud de donnée actuel, et 'previous' le noeud de donnée précédent.
+ *
+ * L'analogie doit être faite avec les chemins d'un système de fichiers ; par défaut la classe
+ * utilise le délimiteur et les identifiants issus de linux pour son système de fichiers.
+ *
+ * @author zuri
+ *
+ */
 class StringPath extends StringCleaver
 {
 

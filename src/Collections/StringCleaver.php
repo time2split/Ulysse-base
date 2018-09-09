@@ -10,6 +10,11 @@ use function Ulysse\Base\Helpers\Arrays\flattenValues;
 use Ulysse\Base\Interfaces\Arrays;
 use Ulysse\Base\Traits\StringDelimiters;
 
+/**
+ * Permet de hacher (découper) une chaîne selon des délimiteurs.
+ *
+ * @author zuri
+ */
 class StringCleaver extends \ArrayObject implements Arrays
 {
 	use StringDelimiters;
@@ -22,6 +27,12 @@ class StringCleaver extends \ArrayObject implements Arrays
 		$this->setText($text);
 	}
 
+	/**
+	 * Modifier le texte à hacher.
+	 *
+	 * @param string $text
+	 *        	Le texte.
+	 */
 	public function setText(?string $text)
 	{
 		$this->text = $text;
@@ -42,6 +53,12 @@ class StringCleaver extends \ArrayObject implements Arrays
 		return $this->text;
 	}
 
+	/**
+	 * Modifier le découpage du texte.
+	 *
+	 * @param array $parts
+	 *        	Le découpage.
+	 */
 	public function setParts(?array $parts)
 	{
 		if ($parts === null)

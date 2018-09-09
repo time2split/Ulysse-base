@@ -1,4 +1,9 @@
 <?php
+
+/**
+ *
+ * @author Olivier Rodriguez
+ */
 namespace Ulysse\Base\Collections;
 
 use function Ulysse\Base\notExists;
@@ -13,14 +18,13 @@ use Ulysse\Base\Interfaces\Arrays;
 /**
  * Représentation de données hiérarchisées accessibles avec une clé chemin.
  * Une clé chemin est une clé représentant un chemin dans la collection, elle est définie par une
- * suite de sous clés, séparées par un/des délimiteur(s).
+ * suite de sous-clés, séparées par un/des délimiteur(s).
  *
  * <h1>Exemple ($data = newDataPathed([...],'.'))</h1>
  * <ul>
  * <li>$subDataPathed = $data['k1.k2']</li>
  * <li>$data['k1.k2.k3'] = $value</li>
- * <li>$var =& $data['k1.k2.k3']->get()</li>
- * <li>$var =& $data['k1.k2.k3.'] (équivalent au précédent)</li>
+ * <li>$var =& $data['k1.k2.k3']</li>
  * </ul>
  */
 class DataPathed implements Filterable, \IteratorAggregate, Arrays
