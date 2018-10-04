@@ -4,7 +4,7 @@ namespace Ulysse\Base;
 use stdClass;
 
 /**
- * A unique value that means 'value unexistant'
+ * A unique value meaning 'unexistant value'
  */
 function notExists()
 {

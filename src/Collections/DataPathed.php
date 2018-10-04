@@ -17,7 +17,7 @@ use Ulysse\Base\Interfaces\Arrays;
 
 /**
  * Représentation de données hiérarchisées accessibles avec une clé chemin.
- * Une clé chemin est une clé représentant un chemin dans la collection, elle est définie par une
+ * Une clé chemin est une clé représentant un chemin dans la collection. Celle-ci est définie par une
  * suite de sous-clés, séparées par un/des délimiteur(s).
  *
  * <h1>Exemple ($data = newDataPathed([...],'.'))</h1>

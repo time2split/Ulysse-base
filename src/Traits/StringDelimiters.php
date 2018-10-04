@@ -1,4 +1,9 @@
 <?php
+
+/**
+ *
+ * @author Olivier Rodriguez
+ */
 namespace Ulysse\Base\Traits;
 
 use function Ulysse\Base\Helpers\Arrays\flattenValues;

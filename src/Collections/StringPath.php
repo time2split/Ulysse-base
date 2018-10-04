@@ -19,7 +19,6 @@ namespace Ulysse\Base\Collections;
  * utilise le délimiteur et les identifiants issus de linux pour son système de fichiers.
  *
  * @author zuri
- *
  */
 class StringPath extends StringCleaver
 {
