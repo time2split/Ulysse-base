@@ -6,7 +6,7 @@
  */
 namespace Ulysse\Base\Collections;
 
-use function Ulysse\Base\Helpers\Arrays\flattenValues;
+use function Ulysse\Base\Functions\Arrays\flattenValues;
 use Ulysse\Base\Interfaces\Arrays;
 use Ulysse\Base\Traits\StringDelimiters;
 

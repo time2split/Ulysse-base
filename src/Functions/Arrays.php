@@ -4,10 +4,10 @@
  *
  * @author Olivier Rodriguez
  */
-namespace Ulysse\Base\Helpers\Arrays;
+namespace Ulysse\Base\Functions\Arrays;
 
 /**
- * Vérifie que $array soit une liste, c'est-à-dire un tableau ne contenant des clés entieres.
+ * Vérifie que $array soit une liste, c'est-à-dire un tableau ne contenant des clés entières.
  */
 function isList(array $array): bool
 {
@@ -20,7 +20,7 @@ function isList(array $array): bool
 }
 
 /**
- * Vérifie que array est un document, c'esy-à-dire un tableau contenant au moins une clé string.
+ * Vérifie que array est un document, c'est-à-dire un tableau contenant au moins une clé string.
  *
  * @param array $array
  * @return bool
@@ -35,6 +35,18 @@ function isArrayAccessible($set)
 	return \is_array($set) || $set instanceof \ArrayAccess;
 }
 
+/**
+ * Déplie un tableau sur un champ.
+ *
+ * Le dépliage d'un tableay $array agit sur un champ $field.
+ * Il consiste à effectuer autant de copie du tableau d'origine qu'il y a d'items dans (array)$array[$field], et d'affecter pour chaque copie $copie[$field] à une valeur de array[$field].
+ *
+ * @param array $array
+ *        	La tableau à déplier
+ * @param mixed $field
+ *        	Le champ du tableau à déplier
+ * @return array
+ */
 function unwind(array $array, $field): array
 {
 	$ret = [];
@@ -71,67 +83,14 @@ function selectColumn(array $dataset, ...$colNames): array
 	return $ret;
 }
 
-/**
- * Substitution d'alias.
- *
- * Substitue à un identifiant son dernier alias dans une séquence d'alias.
- *
- * @param mixed $id
- *        	L'identifiant de référence
- * @param \ArrayAccess|array $aliases
- *        	Contient une séquence de <code>[id_i => alias_i]</code>
- */
-function substituteAlias($id, $aliases)
+function keyPad(array $array, array $keys, $value = null): array
 {
-	$substitutions = getAllAliasesSubstitutions($id, $aliases);
-	return $substitutions[\count($substitutions) - 1];
-}
-
-/**
- * Retourne tous les alias possibles de $id.
- *
- * @param mixed $id
- * @param \ArrayAccess|array $aliases
- * @return array
- */
-function getAllAliasesSubstitutions($id, $aliases): array
-{
-	if (!isset($aliases[$id]))
-		return [
-			$id
-		];
-
-	$stack = [
-		$id => null
-	];
-
-	do
+	foreach ($keys as $key)
 	{
-		$tmp = $aliases[$id];
-
-		if (isset($stack[$tmp]))
-			break;
-
-		$stack[$tmp] = null;
-		$id = $tmp;
+		if (!array_key_exists($key, $array))
+			$array[$key] = $value;
 	}
-	while (isset($aliases[$id]));
-	return \array_keys($stack);
-}
-
-/**
- * Substitue les clés de $array avec tout ses alias.
- *
- * @param \ArrayAccess|array $array
- * @param array $aliases
- */
-function substituteKeyAlias(array &$array, $aliases, int $maxDepth = 0)
-{
-	array_kwalk_depth($array, function ($val, &$key, $aliases)
-	{
-		if (isset($aliases[$key]))
-			$key = substituteAlias($key, $aliases);
-	}, $aliases, $maxDepth);
+	return $array;
 }
 
 /**
@@ -146,14 +105,14 @@ function substituteKeyAlias(array &$array, $aliases, int $maxDepth = 0)
  *        	Une valeur de 0 traitera les éléments de $array sans récursion. <br>
  *        	Une valeur < 0 définit une profondeur infinie
  */
-function array_kwalk_depth(array &$array, callable $callback, $userData = null, int $maxDepth = -1): void
+function keyWalkDepth(array &$array, callable $callback, $userData = null, int $maxDepth = -1): void
 {
 	if ($maxDepth == 0)
-		array_kwalk($array, $callback, $userData);
+		keyWalk($array, $callback, $userData);
 	elseif ($maxDepth < 0)
-		array_kwalk_recursive($array, $callback, $userData);
+		keyWalkRecursive($array, $callback, $userData);
 	else
-		array_kwalk_depth_($array, $callback, $userData, $maxDepth);
+		keyWalkDepth_($array, $callback, $userData, $maxDepth);
 }
 
 /**
@@ -164,7 +123,7 @@ function array_kwalk_depth(array &$array, callable $callback, $userData = null, 
  * @param callable $callback
  * @param mixed $userData
  */
-function array_kwalk(array &$array, callable $callback, $userData = null): void
+function keyWalk(array &$array, callable $callback, $userData = null): void
 {
 	$newKeys = [];
 
@@ -190,7 +149,7 @@ function array_kwalk(array &$array, callable $callback, $userData = null): void
  * @param callable $callback
  * @param mixed $userData
  */
-function array_kwalk_recursive(array &$array, callable $callback, $userData = null): void
+function keyWalkRecursive(array &$array, callable $callback, $userData = null): void
 {
 	$newKeys = [];
 
@@ -200,7 +159,7 @@ function array_kwalk_recursive(array &$array, callable $callback, $userData = nu
 		$callback($v, $k, $userData);
 
 		if (\is_array($v))
-			array_kwalk_recursive($v, $callback, $userData);
+			keyWalkRecursive($v, $callback, $userData);
 
 		if ($k !== $lastk)
 		{
@@ -211,7 +170,7 @@ function array_kwalk_recursive(array &$array, callable $callback, $userData = nu
 	$array += $newKeys;
 }
 
-function array_kwalk_depth_(array &$array, callable $callback, $userData, int $maxDepth): void
+function keyWalkDepth_(array &$array, callable $callback, $userData, int $maxDepth): void
 {
 	$newKeys = [];
 	$maxDepth--;
@@ -222,7 +181,7 @@ function array_kwalk_depth_(array &$array, callable $callback, $userData, int $m
 		$callback($v, $k, $userData);
 
 		if (\is_array($v) && $maxDepth >= 0)
-			array_kwalk_depth_($v, $callback, $userData, $maxDepth);
+			keyWalkDepth_($v, $callback, $userData, $maxDepth);
 
 		if ($k !== $lastk)
 		{
@@ -233,50 +192,69 @@ function array_kwalk_depth_(array &$array, callable $callback, $userData, int $m
 	$array += $newKeys;
 }
 
-function array_kmap_depth(callable $callback, array $array, int $maxDepth = -1): array
+function keyMapDepth(callable $callback, array $array, int $maxDepth = -1): array
 {
 	if ($maxDepth == 0)
-		return array_kmap($callback, $array);
+		return keyMap($callback, $array);
 	elseif ($maxDepth < 0)
-		return array_kmap_recursive($callback, $array);
+		return keyMapRecursive($callback, $array);
 	else
-		return array_kmap_depth_($callback, $array, $maxDepth);
+		return keyMapDepth_($callback, $array, $maxDepth);
 }
 
 /**
  * Similaire à array_map mais permet de modifier les clés.
- * Une différence est à noter : la fonction ne prends en paramèter qu'un unique tableau (pour le
- * moment ...).
  *
  * @param callable $callback
  * @param array $array
  * @return array
  */
-function array_kmap(callable $callback, array $array): array
+function keyMap(callable $callback, array ...$arrays): array
 {
 	$ret = [];
 
-	foreach (\array_map($callback, $array, \array_keys($array)) as list ($key, $val))
-		$ret[$key] = $val;
+	// Un seul tableau en argument
+	if (count($arrays) === 1)
+	{
+		$array = $arrays[0];
 
+		foreach (\array_map($callback, \array_keys($array), $array) as list ($key, $val))
+			$ret[$key] = $val;
+	}
+	// Plusieurs tableaux
+	else
+	{
+		// On récupère toutes les clés des tableaux
+		$allKeys = \array_keys(\array_merge(...$arrays));
+
+		// On complète les clés non présentes dans certains tableaux avec des valeurs null
+		foreach ($arrays as &$array)
+			$array = keyPad($array, $allKeys);
+
+		foreach ($allKeys as $key)
+		{
+			foreach (\array_map($callback, $key, ...selectColumn($arrays, $key)) as list ($key, $val))
+				$ret[$key] = $val;
+		}
+	}
 	return $ret;
 }
 
-function array_kmap_recursive(callable $callback, array $array): array
+function keyMapRecursive(callable $callback, array $array): array
 {
 	$ret = [];
 
 	foreach (\array_map($callback, $array, \array_keys($array)) as list ($key, $val))
 	{
 		if (\is_array($val))
-			$val = array_kmap_recursive($callback, $val);
+			$val = keyMapRecursive($callback, $val);
 
 		$ret[$key] = $val;
 	}
 	return $ret;
 }
 
-function array_kmap_depth_(callable $callback, array $array, int $maxDepth): array
+function keyMapDepth_(callable $callback, array $array, int $maxDepth): array
 {
 	$maxDepth--;
 	$ret = [];
@@ -284,7 +262,7 @@ function array_kmap_depth_(callable $callback, array $array, int $maxDepth): arr
 	foreach (\array_map($callback, $array, \array_keys($array)) as list ($key, $val))
 	{
 		if (\is_array($val) && $maxDepth >= 0)
-			$val = array_kmap_depth_($callback, $val);
+			$val = keyMapDepth_($callback, $val);
 
 		$ret[$key] = $val;
 	}
@@ -300,12 +278,12 @@ function array_kmap_depth_(callable $callback, array $array, int $maxDepth): arr
  * @see http://php.net/manual/en/function.var-export.php Documentation de var_export
  * @param array $array
  */
-function array_export(array $array, string $eol = "\n", string $tab = "\t"): string
+function export(array $array, string $eol = "\n", string $tab = "\t"): string
 {
-	return array_export_($array, $eol, $tab, 0, null) . ']';
+	return export_($array, $eol, $tab, 0, null) . ']';
 }
 
-function array_export_(array $array, string $eol, string $tab, int $depth): string
+function export_(array $array, string $eol, string $tab, int $depth): string
 {
 	$nextDepth = $depth + 1;
 	$hereTab = $tab === '' ? '' : \str_repeat($tab, $depth);
@@ -338,7 +316,7 @@ function array_export_(array $array, string $eol, string $tab, int $depth): stri
 
 		if (\is_array($item))
 		{
-			$tmp = array_export_($item, $eol, $tab, $nextDepth, $lastKey);
+			$tmp = export_($item, $eol, $tab, $nextDepth, $lastKey);
 			$hereBuff = $tmp . (empty($tmp) ?: $insideTab) . ']';
 		}
 		else
@@ -363,16 +341,20 @@ function makeItArray($source): array
 	if (\is_scalar($source))
 		return (array)$source;
 
-	return makeValuesArray($source);
+	return makeValuesArray($source, -1);
 }
 
 /**
  * Transforme toutes les valeurs non scalaires qui peuvent l'être dans $source en array.
  *
  * @param mixed $source
+ * @param int $maxDepth
  */
-function makeValuesArray($source)
+function makeValuesArray($source, int $maxDepth = -1)
 {
+	if ($maxDepth === 0)
+		return $source;
+
 	if (\is_array($source));
 	elseif (\is_iterable($source))
 	{
@@ -395,10 +377,12 @@ function makeValuesArray($source)
 		}
 	}
 
-	if (\is_iterable($source))
+	if (\is_iterable($source) && $maxDepth !== 1)
 	{
+		$nmaxdepth = $maxDepth < 0 ? -1 : $maxDepth - 1;
+
 		foreach ($source as &$v)
-			$v = makeValuesArray($v);
+			$v = makeValuesArray($v, $nmaxdepth);
 	}
 	return $source;
 }

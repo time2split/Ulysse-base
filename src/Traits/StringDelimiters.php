@@ -6,8 +6,8 @@
  */
 namespace Ulysse\Base\Traits;
 
-use function Ulysse\Base\Helpers\Arrays\flattenValues;
-use function Ulysse\Base\Helpers\Arrays\makeItArray;
+use function Ulysse\Base\Functions\Arrays\flattenValues;
+use function Ulysse\Base\Functions\Arrays\makeItArray;
 
 trait StringDelimiters
 {

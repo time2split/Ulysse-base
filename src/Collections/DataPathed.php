@@ -8,12 +8,12 @@ namespace Ulysse\Base\Collections;
 
 use function Ulysse\Base\notExists;
 use Ulysse\Base\Filters\Filter_standard;
-use function Ulysse\Base\Helpers\Arrays\flatten;
-use function Ulysse\Base\Helpers\Arrays\flattenValues;
+use function Ulysse\Base\Functions\Arrays\flatten;
+use function Ulysse\Base\Functions\Arrays\flattenValues;
+use Ulysse\Base\Interfaces\Arrays;
 use Ulysse\Base\Interfaces\Filter;
 use Ulysse\Base\Interfaces\Filterable;
 use Ulysse\Base\Traits\StringDelimiters;
-use Ulysse\Base\Interfaces\Arrays;
 
 /**
  * Représentation de données hiérarchisées accessibles avec une clé chemin.
