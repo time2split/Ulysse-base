@@ -67,7 +67,7 @@ class DataPathed implements \IteratorAggregate, DataPathedI
 			self::ATTRIBUTE_FORCE_CREATE => false,
 			self::ATTRIBUTE_ACCESS_EXCEPTION_CLASS => \OutOfBoundsException::class
 		];
-		$this->setDelimiters($delimiters);
+		$this->addStringDelimiters((array)$delimiters);
 		$this->setData($data);
 	}
 
