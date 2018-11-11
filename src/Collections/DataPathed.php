@@ -7,13 +7,11 @@
 namespace Ulysse\Base\Collections;
 
 use function Ulysse\Base\notExists;
-use Ulysse\Base\Filters\Filter_standard;
 use function Ulysse\Base\Functions\Arrays\flatten;
 use function Ulysse\Base\Functions\Arrays\flattenValues;
-use Ulysse\Base\Interfaces\Arrays;
-use Ulysse\Base\Interfaces\Filter;
-use Ulysse\Base\Interfaces\Filterable;
-use Ulysse\Base\Traits\StringDelimiters;
+use Ulysse\Base\Traits\AttributableT;
+use Ulysse\Base\Traits\StringDelimitersT;
+use Ulysse\Base\Interfaces\DataPathedI;
 
 /**
  * Représentation de données hiérarchisées accessibles avec une clé chemin.
@@ -27,9 +25,10 @@ use Ulysse\Base\Traits\StringDelimiters;
  * <li>$var =& $data['k1.k2.k3']</li>
  * </ul>
  */
-class DataPathed implements Filterable, \IteratorAggregate, Arrays
+class DataPathed implements \IteratorAggregate, DataPathedI
 {
-	use StringDelimiters;
+	use StringDelimitersT;
+	use AttributableT;
 
 	/**
 	 * Les données de la collection.
@@ -64,27 +63,27 @@ class DataPathed implements Filterable, \IteratorAggregate, Arrays
 	// ======================================================
 	public function __construct($data = null, $delimiters = '.')
 	{
+		$this->attributes = [
+			self::ATTRIBUTE_FORCE_CREATE => false,
+			self::ATTRIBUTE_ACCESS_EXCEPTION_CLASS => \OutOfBoundsException::class
+		];
 		$this->setDelimiters($delimiters);
 		$this->setData($data);
 	}
 
-	/**
-	 * Créer un nouveau DataPathed ayant les mêmes délimiteurs que $this
-	 */
-	public function newSameAsMe($data = null)
+	public function newSameAsMe($data = null): DataPathedI
 	{
 		return new static($data, $this->delimiters);
 	}
 
-	/**
-	 *
-	 * @return bool La dernière valeur affectée
-	 */
-	public function setForceCreate(bool $forceCreate = true): bool
+	public function setForceCreate(bool $forceCreate = true): void
 	{
-		$tmp = $this->forceCreate;
 		$this->forceCreate = $forceCreate;
-		return $tmp;
+	}
+
+	public function getForceCreate(): bool
+	{
+		return $this->forceCreate;
 	}
 
 	public function setData($data): void
@@ -100,6 +99,12 @@ class DataPathed implements Filterable, \IteratorAggregate, Arrays
 	// ======================================================
 	// Internal
 	// ======================================================
+	protected function AccessThrowException(): bool
+	{
+		$att = $this->getAttribute(self::ATTRIBUTE_ACCESS_EXCEPTION_CLASS);
+		return is_string($att) || $att === true;
+	}
+
 	protected function makeData($data)
 	{
 		return self::makeData_($data, ...$this->delimiters);
@@ -155,42 +160,34 @@ class DataPathed implements Filterable, \IteratorAggregate, Arrays
 		return flattenValues($pathSet);
 	}
 
+	protected function getExceptionClass(): string
+	{
+		$att = $this->getAttribute(self::ATTRIBUTE_ACCESS_EXCEPTION_CLASS);
+
+		if (is_string($att))
+			return $att;
+
+		return \OutOfBoundsException::class;
+	}
+
 	protected function pathException(array $coveredPath, array $remainingPath)
 	{
 		$delimiter = $this->delimiters[0] ?? '?';
 		$pathS = \implode($delimiter, $coveredPath);
 		$pathNES = \implode($delimiter, $remainingPath);
 		$class = static::class;
+		$ExceptionClass = $this->getExceptionClass();
 
 		if (empty($pathS))
-			return new \RangeException("($class) The path '$pathNES' cannot be covered");
+			return new $ExceptionClass("($class) The path '$pathNES' cannot be covered");
 
-		return new \RangeException("($class) The path '$pathS' has been covered but not '$pathNES'");
+		return new $ExceptionClass("($class) The path '$pathS' has been covered but not '$pathNES'");
 	}
 
 	// ======================================================
-	// Accès publics
-	// ======================================================
-
-	/**
-	 * Vérifie si la valeur retournée spécifie l'inexistance de celle-ci
-	 *
-	 * @param mixed $val
-	 * @return bool
-	 */
-	public static function valueExists($val): bool
+	protected function &getOrAlert($path)
 	{
-		return $val !== notExists();
-	}
-
-	public function exists($paths): bool
-	{
-		return self::valueExists($this->get($paths));
-	}
-
-	public function &getOrAlert($path)
-	{
-		$val = & $this->get($path);
+		$val = & $this->getNotAlert($path);
 
 		if (!empty($this->remainingPath))
 			throw self::pathException($this->coveredPath, $this->remainingPath);
@@ -198,7 +195,7 @@ class DataPathed implements Filterable, \IteratorAggregate, Arrays
 		return $val;
 	}
 
-	public function &get($path)
+	protected function &getNotAlert($path)
 	{
 		$pathSet = $this->makeThePath($path);
 		$set = &$this->data;
@@ -219,9 +216,49 @@ class DataPathed implements Filterable, \IteratorAggregate, Arrays
 		return $set;
 	}
 
-	/**
-	 * Affecte une valeur à un chemin.
-	 */
+	protected function unsetOrAlert($path): void
+	{
+		$pathSet = $this->makeThePath($path);
+		$lastKey = \array_pop($pathSet);
+		$v = & $this->getOrAlert($pathSet);
+
+		if (\is_array($v) && !\array_key_exists($lastKey, $v))
+			throw $this->pathException($pathSet, (array)$lastKey);
+
+		unset($v[$lastKey]);
+	}
+
+	protected function unsetNotAlert($path): void
+	{
+		$pathSet = $this->makeThePath($path);
+		$lastKey = \array_pop($pathSet);
+		$v = & $this->getNotAlert($pathSet);
+
+		if (\is_array($v) && \array_key_exists($lastKey, $v))
+			unset($v[$lastKey]);
+	}
+
+	// ======================================================
+	// Accès publics
+	// ======================================================
+	public static function valueExists($val): bool
+	{
+		return $val !== notExists();
+	}
+
+	public function exists($paths): bool
+	{
+		return self::valueExists($this->get($paths));
+	}
+
+	public function &get($path)
+	{
+		if ($this->AccessThrowException())
+			return $this->getOrAlert($path);
+
+		return $this->getNotAlert($path);
+	}
+
 	public function setRef($path, &$val, bool $forceCreate = null): void
 	{
 		$val = $this->makeData($val);
@@ -271,63 +308,24 @@ class DataPathed implements Filterable, \IteratorAggregate, Arrays
 		$set[$lastKey] = & $val;
 	}
 
-	public function set($path = [], $val, bool $forceCreate = null): void
+	public function set($path, $val, bool $forceCreate = null): void
 	{
 		$this->setRef($path, $val, $forceCreate);
 	}
 
-	public function unsetOrAlert($path): void
-	{
-		$pathSet = $this->makeThePath($path);
-		$lastKey = \array_pop($pathSet);
-		$v = & $this->getOrAlert($pathSet);
-
-		if (\is_array($v) && !\array_key_exists($lastKey, $v))
-			throw $this->pathException($pathSet, (array)$lastKey);
-
-		unset($v[$lastKey]);
-	}
-
 	public function unset($path): void
 	{
-		$pathSet = $this->makeThePath($path);
-		$lastKey = \array_pop($pathSet);
-		$v = & $this->get($pathSet);
-
-		if (\is_array($v) && \array_key_exists($lastKey, $v))
-			unset($v[$lastKey]);
+		if ($this->AccessThrowException())
+			$this->unsetOrAlert($path);
+		else
+			$this->unsetNotAlert($path);
 	}
 
-	/**
-	 * Renvoie toutes les clés ayant au plus une certaine longueur à partir de la racine.
-	 *
-	 * Les sous-clés des clés renvoyées ne sont pas renvoyées unitairement.
-	 *
-	 * @param int|array $depths
-	 * @return array
-	 */
 	public function getKeys(int $maxDepth = 1): array
 	{
 		$delimiter = $this->delimiters[0];
 		$flat = flatten($this->data, $delimiter, $maxDepth);
 		return array_keys($flat);
-	}
-
-	// ======================================================
-	// Static
-	// ======================================================
-	public function filter($filter = null, $options = null): array
-	{
-		if ($filter instanceof Filter);
-		elseif (\is_array($filter))
-			$filter = new Filter_standard($filter);
-		else
-		{
-			$type = \gettype($filter);
-			$filter = Filter::class;
-			throw new \InvalidArgumentException("Filter must be an array or a $filter, $type given");
-		}
-		return $filter->filter($this->data);
 	}
 
 	public function getIterator(): \Iterator
@@ -370,13 +368,9 @@ class DataPathed implements Filterable, \IteratorAggregate, Arrays
 	// ======================================================
 	// ArrayAccess
 	// ======================================================
-
-	/**
-	 * Retourne un nouveau DataPathed à partir du chemin donné dans les $this->data
-	 */
 	public function &offsetGet($offset)
 	{
-		return $this->getOrAlert($offset);
+		return $this->get($offset);
 	}
 
 	public function offsetExists($offset)
@@ -386,7 +380,7 @@ class DataPathed implements Filterable, \IteratorAggregate, Arrays
 
 	public function offsetUnset($offset)
 	{
-		$this->unsetOrAlert($offset);
+		$this->unset($offset);
 	}
 
 	public function offsetSet($offset, $value)
@@ -399,7 +393,7 @@ class DataPathed implements Filterable, \IteratorAggregate, Arrays
 	// ======================================================
 	public function &__get($path)
 	{
-		$data = & $this->getOrAlert($path);
+		$data = & $this->get($path);
 		$ret = $this->newSameAsMe();
 		$ret->setRef(null, $data);
 		return $ret;
@@ -417,6 +411,6 @@ class DataPathed implements Filterable, \IteratorAggregate, Arrays
 
 	public function __unset($path)
 	{
-		$this->unsetOrAlert($path);
+		$this->unset($path);
 	}
 }
