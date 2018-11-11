@@ -1,5 +1,5 @@
 <?php
-namespace Awadac\DataBundle\Interfaces;
+namespace Ulysse\Base\Interfaces;
 
 /**
  * L'interface Attributable offre un moyen d'affecter des attributs à un objet.
