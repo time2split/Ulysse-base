@@ -12,43 +12,34 @@ use function Ulysse\Base\Functions\Arrays\makeItArray;
 trait StringDelimitersT
 {
 
-	protected $delimiters;
+	protected $delimiters = [];
 
-	public function setDelimiter(string ...$delimiters): void
+	public function addStringDelimiter(string ...$delimiters): void
+	{
+		$this->delimiters = \array_merge($this->delimiters, $delimiters);
+	}
+
+	public function addStringDelimiters(array $delimiters): void
+	{
+		$this->addStringDelimiter(...flattenValues(makeItArray($delimiters)));
+	}
+
+	public function cleanStringDelimiters(): void
 	{
 		$this->delimiters = [];
-		$this->addDelimiter(...$delimiters);
 	}
 
-	public function setDelimiters($delimiters): void
-	{
-		$this->delimiters = [];
-
-		if ($delimiters !== null)
-			$this->addDelimiters($delimiters);
-	}
-
-	public function addDelimiter(string ...$delimiters): void
-	{
-		$this->delimiters = array_merge($this->delimiters, $delimiters);
-	}
-
-	public function addDelimiters($delimiters): void
-	{
-		$this->addDelimiter(...flattenValues(makeItArray($delimiters)));
-	}
-
-	public function getDelimiters(): array
+	public function getStringDelimiters(): array
 	{
 		return $this->delimiters;
 	}
 
-	public function getMainDelimiter(): ?string
+	protected function getMainDelimiter(): ?string
 	{
 		return $this->delimiters[0] ?? null;
 	}
 
-	public function chop(string $text): array
+	public function StringChop(string $text): array
 	{
 		$mainDelimiter = $this->getMainDelimiter();
 
