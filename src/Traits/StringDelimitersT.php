@@ -9,7 +9,7 @@ namespace Ulysse\Base\Traits;
 use function Ulysse\Base\Functions\Arrays\flattenValues;
 use function Ulysse\Base\Functions\Arrays\makeItArray;
 
-trait StringDelimiters
+trait StringDelimitersT
 {
 
 	protected $delimiters;
