@@ -7,17 +7,17 @@
 namespace Ulysse\Base\Collections;
 
 use function Ulysse\Base\Functions\Arrays\flattenValues;
-use Ulysse\Base\Interfaces\Arrays;
-use Ulysse\Base\Traits\StringDelimiters;
+use Ulysse\Base\Interfaces\ArrayI;
+use Ulysse\Base\Traits\StringDelimitersT;
 
 /**
  * Permet de hacher (découper) une chaîne selon des délimiteurs.
  *
  * @author zuri
  */
-class StringCleaver extends \ArrayObject implements Arrays
+class StringCleaver extends \ArrayObject implements ArrayI
 {
-	use StringDelimiters;
+	use StringDelimitersT;
 
 	protected $text;
 
