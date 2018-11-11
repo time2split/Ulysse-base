@@ -1,5 +1,7 @@
 <?php
-namespace Awadac\DataBundle\Interfaces;
+namespace Ulysse\Base\Traits;
+
+use Ulysse\Base\Interfaces\Attributable;
 
 /**
  * Implemente un comportement pour l'interface Attributable.
@@ -7,9 +9,14 @@ namespace Awadac\DataBundle\Interfaces;
  * @author zuri
  *
  */
-trait AttributableStandard
+trait AttributableT
 {
 
+	/**
+	 * The associated array of attributes.
+	 *
+	 * @var array
+	 */
 	protected $attributes = [];
 
 	public function getAttribute($attributeType)
@@ -17,7 +24,7 @@ trait AttributableStandard
 		return $this->attributes[$attributeType];
 	}
 
-	public function setAttribute($attributeType, $value): self
+	public function setAttribute($attributeType, $value): Attributable
 	{
 		if (!\array_key_exists($attributeType, $this->attributes))
 			throw new \Exception("Invalid attribute $attributeType");
@@ -26,15 +33,7 @@ trait AttributableStandard
 		return $this;
 	}
 
-	/**
-	 * Permet d'affecter plusieurs attributs en une fois.
-	 *
-	 * Pour cela il faut que les attributs soient des valeurs scalaires.
-	 *
-	 * @param array $attributes
-	 * @return self
-	 */
-	public function setAttributes(array $attributes): self
+	public function setAttributes(array $attributes): Attributable
 	{
 		foreach ($attributes as $k => $v)
 			$this->setAttribute($k, $v);
