@@ -23,7 +23,7 @@ class StringCleaver extends \ArrayObject implements ArrayI
 
 	public function __construct(string $text = null, $delimiters = '.')
 	{
-		$this->setDelimiters($delimiters);
+		$this->addStringDelimiters((array)$delimiters);
 		$this->setText($text);
 	}
 
@@ -38,7 +38,7 @@ class StringCleaver extends \ArrayObject implements ArrayI
 		$this->text = $text;
 
 		if ($text !== null)
-			$this->exchangeArray($this->chop($text));
+			$this->exchangeArray($this->stringChop($text));
 		else
 			$this->exchangeArray([]);
 	}
