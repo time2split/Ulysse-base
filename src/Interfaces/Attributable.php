@@ -30,7 +30,7 @@ interface Attributable
 	 * @param mixed $value
 	 * @return object L'instance de l'objet Attributable.
 	 */
-	public function setAttribute($attribute, $value): Attributable;
+	public function setAttribute($attribute, $value): void;
 
 	/**
 	 * Permet d'affecter plusieurs attributs en une fois.
@@ -38,5 +38,5 @@ interface Attributable
 	 * @param array $attributes
 	 * @return self
 	 */
-	public function setAttributes(array $attributes): Attributable;
+	public function setAttributes(array $attributes): void;
 }

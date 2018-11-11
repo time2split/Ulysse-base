@@ -1,8 +1,6 @@
 <?php
 namespace Ulysse\Base\Traits;
 
-use Ulysse\Base\Interfaces\Attributable;
-
 /**
  * Implemente un comportement pour l'interface Attributable.
  *
@@ -24,20 +22,17 @@ trait AttributableT
 		return $this->attributes[$attributeType];
 	}
 
-	public function setAttribute($attributeType, $value): Attributable
+	public function setAttribute($attributeType, $value): void
 	{
 		if (!\array_key_exists($attributeType, $this->attributes))
 			throw new \Exception("Invalid attribute $attributeType");
 
 		$this->attributes[$attributeType] = $value;
-		return $this;
 	}
 
-	public function setAttributes(array $attributes): Attributable
+	public function setAttributes(array $attributes): void
 	{
 		foreach ($attributes as $k => $v)
 			$this->setAttribute($k, $v);
-
-		return $this;
 	}
 }
