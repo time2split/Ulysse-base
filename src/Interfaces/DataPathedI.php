@@ -18,7 +18,7 @@ namespace Ulysse\Base\Interfaces;
  * <li>$var =& $data['k1.k2.k3']</li>
  * </ul>
  */
-interface DataPathedI extends ArrayI, Attributable
+interface DataPathedI extends ArrayI, StringDelimitersI, Attributable
 {
 
 	/**
@@ -34,11 +34,6 @@ interface DataPathedI extends ArrayI, Attributable
 
 	// ======================================================
 	public function __construct($data = null, $delimiters = '.');
-
-	/**
-	 * Créer un nouveau DataPathed ayant les mêmes délimiteurs que $this
-	 */
-	public function newSameAsMe($data = null): self;
 
 	// ======================================================
 	public function setData($data): void;
